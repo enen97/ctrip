@@ -1,5 +1,15 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import { createApp } from "vue";
+import ElementPlus from "element-plus";
+import "element-plus/dist/index.css";
 
-createApp(App).mount('#app')
+// 引入路由
+import router from "./router";
+
+// 清空默认样式
+import "./styles/reset.css";
+import App from "./App.vue";
+
+const app = createApp(App);
+app.use(ElementPlus);
+app.use(router);
+app.mount("#app");

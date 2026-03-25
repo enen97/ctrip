@@ -1,25 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 
-const routers = [
-    { path: '/', component: () => import('../views/Home.vue') },
-    { path: 'list', component: () => import('../views/List.vue') },
-    { path: 'detail/:id', component: () => import('../views/Detail.vue') },
-    { path: 'admin', component: () => import('../views/Detail'), meta: { requiresAuth: true } }
-
-]
+const routes = [
+  { path: "/", component: () => import("../views/home/index.vue") },
+  { path: "/hotels", component: () => import("../views/hotels/index.vue") },
+  { path: "/ad-display", component: () => import("../views/home/AdvertiseView.vue") },
+];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes
-})
+  history: createWebHistory(),
+  routes,
+});
 
 // 全局守卫
-router.beforeEach((toString, from, next) => {
-    if (toString.meta.requiresAuth && !localStorage.getItem('token')) {
-        next('/login')
-    } else {
-        next()
-    }
-})
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !localStorage.getItem("token")) {
+    next("/login");
+  } else {
+    next();
+  }
+});
 
-export default router
+export default router;
