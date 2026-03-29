@@ -1,0 +1,58 @@
+{
+  "id": "5149302",
+  "name": "ctrip",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "7063943",
+      "name": "restaurants",
+      "font_class": "restaurants",
+      "unicode": "e6ff",
+      "unicode_decimal": 59135
+    },
+    {
+      "icon_id": "7792744",
+      "name": "airplane",
+      "font_class": "airplane",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "7962053",
+      "name": "subway",
+      "font_class": "subway",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "12865653",
+      "name": "check",
+      "font_class": "check",
+      "unicode": "e6e6",
+      "unicode_decimal": 59110
+    },
+    {
+      "icon_id": "18991696",
+      "name": "parking lot",
+      "font_class": "parkinglot",
+      "unicode": "e86d",
+      "unicode_decimal": 59501
+    },
+    {
+      "icon_id": "41712414",
+      "name": "luggage-cart-line",
+      "font_class": "luggage-cart-line",
+      "unicode": "ed94",
+      "unicode_decimal": 60820
+    },
+    {
+      "icon_id": "47150537",
+      "name": "train-front",
+      "font_class": "train-front",
+      "unicode": "e82e",
+      "unicode_decimal": 59438
+    }
+  ]
+}

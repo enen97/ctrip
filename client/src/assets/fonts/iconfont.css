@@ -1,0 +1,43 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 5149302 */
+  src: url('iconfont.woff2?t=1774599641546') format('woff2'),
+       url('iconfont.woff?t=1774599641546') format('woff'),
+       url('iconfont.ttf?t=1774599641546') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-restaurants:before {
+  content: "\e6ff";
+}
+
+.icon-airplane:before {
+  content: "\e609";
+}
+
+.icon-subway:before {
+  content: "\e627";
+}
+
+.icon-check:before {
+  content: "\e6e6";
+}
+
+.icon-parkinglot:before {
+  content: "\e86d";
+}
+
+.icon-luggage-cart-line:before {
+  content: "\ed94";
+}
+
+.icon-train-front:before {
+  content: "\e82e";
+}
+
