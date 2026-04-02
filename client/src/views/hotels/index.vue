@@ -13,14 +13,28 @@ import AttachedHotel from "./component/AttachedHotel.vue";
 import MoreHotel from "./component/MoreHotel.vue";
 import PriceDescription from "./component/PriceDescription.vue";
 import HotelRecommend from "./component/HotelRecommend.vue";
+import PicturePreview from "./component/PicturePreview.vue";
+
+import { ref } from "vue";
+
+const hotelCardRef = ref(null);
+
+const scrollToRoom = () => {
+  if (hotelCardRef.value) {
+    hotelCardRef.value.$el.scrollIntoView({ behavior: "smooth" });
+  }
+};
 </script>
 
 <template>
   <div>
     <SearchBar></SearchBar>
-    <HotelHeader style="margin-top: 40px"></HotelHeader>
+    <HotelHeader
+      style="margin-top: 40px"
+      @scrollToRoomEvent="scrollToRoom"
+    ></HotelHeader>
     <HotelTab style="margin-top: 40px"></HotelTab>
-    <HotelCard style="margin-top: 40px"></HotelCard>
+    <HotelCard ref="hotelCardRef" style="margin-top: 40px"></HotelCard>
     <HotelComment style="margin-top: 40px"></HotelComment>
     <HotelLocation style="margin-top: 40px"></HotelLocation>
     <ServiceFacility style="margin-top: 40px"></ServiceFacility>
@@ -31,5 +45,6 @@ import HotelRecommend from "./component/HotelRecommend.vue";
     <MoreHotel style="margin-top: 40px"></MoreHotel>
     <PriceDescription style="margin-top: 40px"></PriceDescription>
     <HotelRecommend style="margin-top: 40px"></HotelRecommend>
+    <!-- <PicturePreview></PicturePreview> -->
   </div>
 </template>

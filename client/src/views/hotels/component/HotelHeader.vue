@@ -2,6 +2,7 @@
 import { hotelData } from "./mockData.js";
 import { Location } from "@element-plus/icons-vue";
 import { ref } from "vue";
+import { ElMessage } from "element-plus";
 const facilities = ref([
   { text: "公共停车场", isFree: true, iconClass: "icon-parkinglot" },
   { text: "大堂吧", iconClass: "icon-check" },
@@ -45,6 +46,40 @@ const nearby = ref([
     iconClass: "icon-train-front",
   },
 ]);
+
+// 点击复制酒店地址
+const copyAddress = () => {
+  navigator.clipboard.writeText(hotelData.address).then(
+    () => {
+      ElMessage.success("地址已复制到剪贴板");
+    },
+    (err) => {
+      ElMessage.error("复制失败，请手动复制", err);
+    },
+  );
+};
+
+// 点击选择房间按钮，滚动到房间列表
+const emit = defineEmits(["scrollToRoomEvent"]);
+
+// 点击查看所有照片
+const previewRef = ref(null);
+const showAllImages = () => {
+  const el = previewRef.value?.$el.querySelector("img");
+  if (el) {
+    el.click();
+  } else {
+    console.error("未能找到预览组件的触发元素");
+  }
+};
+
+// 地图组件相关逻辑
+import MapDetail from "../../../components/MapDetail.vue"; // 引入新组件
+
+const mapVisible = ref(false);
+const openMapDialog = () => {
+  mapVisible.value = true;
+};
 </script>
 
 <template>
@@ -53,16 +88,29 @@ const nearby = ref([
       <div class="title-section">
         <h1>{{ hotelData.name }} <span class="stars">⭐⭐⭐⭐</span></h1>
         <p class="address">
-          <el-icon><Location></Location></el-icon> {{ hotelData.address }}
+          <el-icon><Location></Location></el-icon>
+          <el-tooltip content="点击复制地址" placement="top">
+            <span @click="copyAddress" style="cursor: pointer">{{
+              hotelData.address
+            }}</span>
+          </el-tooltip>
           <a>显示地图</a>
         </p>
       </div>
-      <button class="select-room-btn">选择房间</button>
+      <button class="select-room-btn" @click="emit('scrollToRoomEvent')">
+        选择房间
+      </button>
     </div>
 
     <div class="gallery-grid">
       <div class="main-img">
-        <img :src="hotelData.images[0]" alt="Main" />
+        <el-image
+          :src="hotelData.images[0]"
+          :preview-src-list="hotelData.images"
+          :initial-index="0"
+          fit="cover"
+          preview-teleported
+        />
       </div>
       <div class="side-imgs">
         <div
@@ -70,10 +118,25 @@ const nearby = ref([
           :key="index"
           class="sub-img"
         >
-          <img :src="img" />
-          <div v-if="index === 5" class="more-mask">查看所有照片</div>
+          <el-image
+            :src="img"
+            :preview-src-list="hotelData.images"
+            :initial-index="index + 1"
+            fit="cover"
+            preview-teleported
+          />
+          <div v-if="index === 5" class="more-mask" @click="showAllImages">
+            查看所有照片
+          </div>
         </div>
       </div>
+      <el-image
+        ref="previewRef"
+        style="display: none"
+        :src="hotelData.images[0]"
+        :preview-src-list="hotelData.images"
+        preview-teleported
+      />
     </div>
 
     <div class="hotel-container">
@@ -124,7 +187,25 @@ const nearby = ref([
               <span class="distance">({{ loc.dist }})</span>
             </li>
           </ul>
-          <a href="javascript:;" class="link-blue">在地图上查看</a>
+          <a href="javascript:;" class="link-blue" @click="openMapDialog">
+            在地图上查看
+          </a>
+          <el-dialog
+            v-model="mapVisible"
+            width="80%"
+            top="5vh"
+            destroy-on-close
+          >
+            <MapDetail
+              v-if="mapVisible"
+              :hotel-name="hotelData.name"
+              :address="hotelData.address"
+              score="4.8"
+              comment-count="1016"
+              :lng="106.611"
+              :lat="29.537"
+            />
+          </el-dialog>
         </div>
       </aside>
     </div>
@@ -225,6 +306,7 @@ const nearby = ref([
       width: 100%;
       height: 100%;
       object-fit: cover;
+      cursor: pointer;
       border-radius: @border-radius;
       display: block; // 消除图片底边间隙
       transition: transform 0.3s ease;
