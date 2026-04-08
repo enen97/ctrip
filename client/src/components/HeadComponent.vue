@@ -23,7 +23,7 @@ const isMenuOpen = ref(false);
 <template>
   <div class="head-container">
     <div class="left">
-      <h1><a class="logo"></a></h1>
+      <h1><a class="logo" href="/"></a></h1>
       <div class="nav">
         <div class="search-box-container">
           <input

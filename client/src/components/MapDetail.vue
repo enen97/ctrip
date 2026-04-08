@@ -143,17 +143,26 @@ const searchAndMark = (BMap, mapInstance, centerPoint, keyword, type) => {
   local.searchNearby(keyword, centerPoint, 5000); // 搜索 5km 范围内
 };
 
+let driving = null; // 路线实例
+let centerPoint = null; // 酒店中心点
+
 const initMap = async () => {
   const BMap = await loadBMap("87TmyeXdUp2OkDPjmxFFEFN6yhwHoZ3Z");
   if (!BMap) return;
 
   map = new BMap.Map(mapContainer.value);
   const point = new BMap.Point(props.lng, props.lat);
+  centerPoint = point;
 
   map.centerAndZoom(point, 15);
   map.addOverlay(new BMap.Marker(point));
-  // map.addControl(new BMap.NavigationControl());
+  map.addControl(new BMap.NavigationControl());
   map.enableScrollWheelZoom(true);
+
+  // 创建驾车路线实例
+  driving = new BMap.DrivingRoute(map, {
+    renderOptions: { map: map, autoViewport: true },
+  });
 
   // 执行三次搜索：地铁、机场、火车站
   searchAndMark(BMap, map, point, "地铁站", "subway");
@@ -189,6 +198,22 @@ watch(
 onMounted(() => {
   initMap();
 });
+
+// 点击列表时画路线
+const handleClickItem = (item) => {
+  if (!map || !driving || !centerPoint) return;
+  // 清除旧线路
+  // map.clearOverlays();
+  // 重新添加酒店maker
+  const hotelMarker = new BMap.Marker(centerPoint);
+  map.addOverlay(hotelMarker);
+  // 添加当前的POI marker
+  if (item.marker) {
+    map.addOverlay(item.marker);
+  }
+  // // 画路线
+  driving.search(centerPoint, item.point);
+};
 </script>
 
 <template>
@@ -233,6 +258,7 @@ onMounted(() => {
                   :class="{ 'is-active': activePoiName == item.name }"
                   @mouseenter="handleMouseEnter(item)"
                   @mouseleave="handleMouseLeave(item)"
+                  @click="handleClickItem(item)"
                 >
                   <div class="name">{{ item.name }}</div>
                   <div class="desc">

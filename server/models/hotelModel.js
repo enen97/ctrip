@@ -1,5 +1,6 @@
 const db = require("../config/db");
 
+// 获取推荐酒店
 const getTopHotels = async (address) => {
   let sql = `
     SELECT 
@@ -33,6 +34,27 @@ const getTopHotels = async (address) => {
   return rows;
 };
 
+// 查询酒店基本信息
+const getHotelById = async (hotelId) => {
+  const [rows] = await db.query(
+    'SELECT * FROM hotel WHERE id = ?',
+    [hotelId]
+  );
+  return rows[0];
+}
+
+// 查询酒店图片
+const getHotelImages = async (hotelId) => {
+  const [rows] = await db.query(
+    'SELECT url FROM hotel_image WHERE hotel_id = ? ORDER BY sort ASC',
+    [hotelId]
+  );
+  return rows;
+}
+
+
 module.exports = {
   getTopHotels,
+  getHotelById,
+  getHotelImages
 };

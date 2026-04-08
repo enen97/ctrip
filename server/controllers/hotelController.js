@@ -12,7 +12,22 @@ const getHotels = async (req, res) => {
   }
 };
 
+const getHotelDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await hotelService.getHotelDetail(id);
+    if (!data) {
+      res.json(error("酒店不存在"));
+    } else {
+      res.json(success(data));
+    }
+  } catch (err) {
+    console.error(err);
+    res.json(error("服务器错误"));
+  }
+};
 
 module.exports = {
   getHotels,
+  getHotelDetail,
 };

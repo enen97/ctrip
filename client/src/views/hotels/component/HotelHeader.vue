@@ -1,18 +1,8 @@
 <script setup>
-import { hotelData } from "./mockData.js";
 import { Location } from "@element-plus/icons-vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
-const facilities = ref([
-  { text: "公共停车场", isFree: true, iconClass: "icon-parkinglot" },
-  { text: "大堂吧", iconClass: "icon-check" },
-  { text: "健身室", iconClass: "icon-check" },
-  { text: "餐厅", iconClass: "icon-restaurants" },
-  { text: "叫车服务", iconClass: "icon-check" },
-  { text: "行李寄存", iconClass: "icon-luggage-cart-line" },
-  { text: "儿童餐", iconClass: "icon-check" },
-  { text: "储物柜", iconClass: "icon-check" },
-]);
+import { useRoute } from "vue-router";
 
 const nearby = ref([
   {
@@ -49,7 +39,7 @@ const nearby = ref([
 
 // 点击复制酒店地址
 const copyAddress = () => {
-  navigator.clipboard.writeText(hotelData.address).then(
+  navigator.clipboard.writeText(hotelData.value.address).then(
     () => {
       ElMessage.success("地址已复制到剪贴板");
     },
@@ -75,18 +65,31 @@ const showAllImages = () => {
 
 // 地图组件相关逻辑
 import MapDetail from "../../../components/MapDetail.vue"; // 引入新组件
+import { getHotelDetail } from "../../../api/hotel.js";
 
 const mapVisible = ref(false);
 const openMapDialog = () => {
   mapVisible.value = true;
 };
+
+const hotelData = ref(null);
+onMounted(() => {
+  const route = useRoute();
+  getHotelDetail(route.query.hotelId).then((response) => {
+    hotelData.value = response.data;
+    console.log("酒店详情数据：", hotelData.value);
+  });
+});
 </script>
 
 <template>
-  <div class="hotel-detail">
+  <div v-if="hotelData" class="hotel-detail">
     <div class="header-info">
       <div class="title-section">
-        <h1>{{ hotelData.name }} <span class="stars">⭐⭐⭐⭐</span></h1>
+        <h1>
+          {{ hotelData.name }}
+          <span class="stars">{{ "⭐".repeat(hotelData.rating) }}</span>
+        </h1>
         <p class="address">
           <el-icon><Location></Location></el-icon>
           <el-tooltip content="点击复制地址" placement="top">
@@ -145,7 +148,7 @@ const openMapDialog = () => {
           <h2 class="section-title">酒店设施</h2>
           <div class="facility-grid">
             <div
-              v-for="item in facilities"
+              v-for="item in hotelData.facilities"
               :key="item.text"
               class="facility-item"
             >
@@ -169,13 +172,15 @@ const openMapDialog = () => {
       <aside class="hotel-sidebar">
         <div class="rating-box">
           <div class="rating-header">
-            <span class="badge">4.8</span>
-            <span class="status">超棒</span>
+            <span class="badge">{{ hotelData.score }}</span>
+            <span class="status">{{ hotelData.scoreText }}</span>
           </div>
           <p class="comment-preview">
-            订的江景房，晚上可以看到江景，风景还挺好的，工作人员的服务态度也很好。早餐挺丰盛的，而且...
+            {{ hotelData.description }}
           </p>
-          <a href="javascript:;" class="link-blue">显示所有3,571条点评</a>
+          <a href="javascript:;" class="link-blue"
+            >显示所有{{ hotelData.reviewCount }}条点评</a
+          >
         </div>
 
         <div class="nearby-box">
@@ -300,23 +305,18 @@ const openMapDialog = () => {
     margin-top: 20px;
     .main-img {
       overflow: hidden;
+      height: 300px;
     }
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      cursor: pointer;
-      border-radius: @border-radius;
-      display: block; // 消除图片底边间隙
-      transition: transform 0.3s ease;
-      &:hover {
-        transform: scale(1.1);
-      }
+    .main-img,
+    .side-imgs > div {
+      display: grid;
+      place-items: center; /* 水平垂直同时居中 */
     }
 
     .side-imgs {
       display: grid;
+      height: 300px;
       grid-template-columns: 1fr 1fr 1fr; // 右侧再平分为两列
       grid-template-rows: 1fr 1fr; // 平分为两行
       gap: @gap;

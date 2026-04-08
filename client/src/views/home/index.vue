@@ -772,6 +772,13 @@ const changeType = (type) => {
   activeType.value = type;
   activeTab.value = "热门"; // 切换大类时重置 Tab
 };
+
+const gotoHotel = (id) => {
+  router.push({
+    path: "/hotels",
+    query: { hotelId: id },
+  });
+};
 </script>
 
 <template>
@@ -1177,6 +1184,7 @@ const changeType = (type) => {
                 v-for="hotel in displayHotels"
                 :key="hotel.id"
                 class="hotel-card"
+                @click="gotoHotel(hotel.id)"
               >
                 <div class="img-wrapper">
                   <img :src="hotel.img" :alt="hotel.name" />

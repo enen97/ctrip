@@ -8,3 +8,11 @@ export const getHotels = (data) => {
     data,
   });
 };
+
+// 根据id获取酒店详情
+export const getHotelDetail = (id) => {
+  return request({
+    url: `/hotels/${id}`,
+    method: "get",
+  });
+}
