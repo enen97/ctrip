@@ -45,21 +45,29 @@
 
 <script setup>
 import { reactive, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute,useRouter } from "vue-router";
 import { getHotelRooms } from "../../../api/hotel.js";
 import DatePickerSection from "/src/components/DatePickerSection.vue";
 import GuestPickerSection from "/src/components/GuestPickerSection.vue";
-// ✅ 数据中心（父组件统一管理）
-const formData = reactive({
-  checkIn: new Date(2026, 3, 16), // 4月16日 (月份从0开始)
-  checkOut: new Date(2026, 3, 17), // 4月17日
-  checkInText: "4月16日",
-  checkOutText: "4月17日",
-  nights: 1,
+const props = defineProps(["initialConfig"]);
+const emit = defineEmits(["updateRooms", "updateFormData"]);
+const route = useRoute();
+const router = useRouter();
 
-  rooms: 1,
-  adults: 2,
-  children: 0,
+// ✅ 数据中心（父组件统一管理）
+const startDate = props.initialConfig?.checkIn ? new Date(props.initialConfig.checkIn) : new Date(2026, 3, 16);
+const endDate = props.initialConfig?.checkOut ? new Date(props.initialConfig.checkOut) : new Date(2026, 3, 18);
+const diffDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+const formData = reactive({
+  checkIn: props.initialConfig.checkIn,
+  checkOut: props.initialConfig.checkOut,
+  checkInText: props.initialConfig.checkInText,
+  checkOutText: props.initialConfig.checkOutText,
+  nights: diffDays > 0 ? diffDays : 1,
+
+  rooms: parseInt(props.initialConfig?.rooms) || 1,
+  adults: parseInt(props.initialConfig?.adults) || 1,
+  children: parseInt(props.initialConfig?.children) || 0,
 });
 // ✅ 接收日期组件数据
 const handleDateUpdate = (data) => {
@@ -82,20 +90,17 @@ const formatDate = (date) => {
   return `${m}月${d}日(${week})`;
 };
 
-const emit = defineEmits(["updateRooms", "updateFormData"]);
-const route = useRoute();
+
+const formatDateForApi = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const fetchRooms = async () => {
   console.log('数据变化', formData);
   if (!formData.checkIn || !formData.checkOut) return;
-  
-  const formatDateForApi = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   try {
     const res = await getHotelRooms(route.query.hotelId, {
       checkIn: formatDateForApi(formData.checkIn),
@@ -115,19 +120,46 @@ const fetchRooms = async () => {
       adults: formData.adults,
       children: formData.children
     });
+    console.log('initialConfig',props.initialConfig)
   } catch (error) {
     console.error("Failed to fetch rooms:", error);
   }
 };
 
-watch(formData, (newVal) => {
-  console.log('数据变化了', newVal);
-  fetchRooms();
+watch(() => props.initialConfig, (newVal) => {
+  if (!newVal.checkIn) return;
+
+  // 1. 同步内部 formData 状态，确保 UI 上的日期、人数显示正确
+  formData.checkIn = new Date(newVal.checkIn);
+  formData.checkOut = new Date(newVal.checkOut);
+  formData.adults = parseInt(newVal.adults) || 1;
+  formData.children = parseInt(newVal.children) || 0;
+  formData.rooms = parseInt(newVal.rooms) || 1;
+  
+  // 2. 更新显示文本
+  formData.checkInText = formatDate(formData.checkIn);
+  formData.checkOutText = formatDate(formData.checkOut);
+
+
+  // 当路由变化时，重新获取房间数据
+  fetchRooms()
+  
+}, { deep: true, immediate: true });
+
+// 监听日期和人数变化
+watch(() => [formData.checkIn, formData.checkOut, formData.adults, formData.children, formData.rooms], () => {
+  // 更新URL参数
+  router.push({
+    query: {
+      ...route.query,
+      checkIn: formatDateForApi(formData.checkIn),
+      checkOut: formatDateForApi(formData.checkOut),
+      adult: formData.adults,
+      children: formData.children,
+      rooms: formData.rooms,
+    }
+  });
 }, { deep: true });
-onMounted(() => {
-  // Wait for initial checkIn/checkOut from DatePickerSection if they are set asynchronously, Or fetch immediately if they exist.
-  if (formData.checkIn) fetchRooms();
-});
 
 const tabs = [
   { name: "概览" },

@@ -776,7 +776,14 @@ const changeType = (type) => {
 const gotoHotel = (id) => {
   router.push({
     path: "/hotels",
-    query: { hotelId: id },
+    query: { 
+      hotelId: id,
+      checkIn: new Date(2026,3,16),
+      checkOut: new Date(2026,3,17),
+      adult: 1,
+      children: 0,
+      rooms: 1,
+    },
   });
 };
 </script>

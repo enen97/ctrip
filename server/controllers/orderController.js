@@ -103,7 +103,6 @@ const getUserOrders = async (req, res) => {
   try {
     const { userId } = req.query;
     const orders = await orderModel.getUserOrders(userId);
-
     // 映射状态码到前端需要的文字和类型
     const mappedOrders = orders.map((order) => {
       let statusText = "未知";
@@ -139,7 +138,6 @@ const getUserOrders = async (req, res) => {
 const searchUserOrders = async (req, res) => {
   try {
     const { userId, checkIn, checkOut, guest, orderNo, status } = req.query;
-    console.log(userId, checkIn, checkOut, guest, orderNo, status);
     const orders = await orderModel.searchUserOrders(userId, checkIn, checkOut, guest, orderNo, status);
     // 映射状态码到前端需要的文字和类型
     const mappedOrders = orders.map((order) => {

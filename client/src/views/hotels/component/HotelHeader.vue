@@ -77,7 +77,6 @@ onMounted(() => {
   const route = useRoute();
   getHotelDetail(route.query.hotelId).then((response) => {
     hotelData.value = response.data;
-    console.log("酒店详情数据：", hotelData.value);
   });
 });
 </script>

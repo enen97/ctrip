@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { onMounted, reactive, watch } from "vue";
 import DatePickerSection from "../../../components/DatePickerSection.vue";
 import GuestPickerSection from "../../../components/GuestPickerSection.vue";
 
@@ -52,6 +52,8 @@ import {
   CircleCloseFilled,
   RefreshRight,
 } from "@element-plus/icons-vue";
+
+const props = defineProps(['initialConfig']);
 
 const formData = reactive({
   city: "上海",
@@ -74,6 +76,22 @@ const formatDate = (date) => {
   ];
   return `${m}月${d}日(${week})`;
 };
+
+watch(() => props.initialConfig, (newVal) => {
+  console.log(newVal)
+  formData.city = newVal.city;
+  formData.checkIn = newVal.checkIn;
+  formData.checkOut = newVal.checkOut;
+  formData.rooms = newVal.rooms;
+  formData.adults = newVal.adults;
+  formData.children = newVal.children;
+
+  formData.checkInText = formatDate(new Date(newVal.checkIn));
+  formData.checkOutText = formatDate(new Date(newVal.checkOut));
+  formData.nights = (new Date(newVal.checkOut) - new Date(newVal.checkIn)) / 1000 / 60 / 60 / 24;
+},{ immediate: true, deep: true })
+
+
 
 const clearCity = () => {
   formData.city = "";

@@ -69,7 +69,9 @@ const getUserOrders = async (userId) => {
   await db.execute(autoUpdateSql, [userId]);
 
   const sql = `
-    SELECT 
+    SELECT
+      h.id as hotelId,
+      h.city,
       o.trade_no as id,
       DATE_FORMAT(o.created_at, '%Y-%m-%d') as date,
       h.name as hotelName,
@@ -118,7 +120,6 @@ const searchUserOrders = async (userId, checkIn, checkOut, guest, orderNo, statu
       AND o.status = ?
     ORDER BY o.created_at DESC  
   `;
-  console.log(sql, userId, checkIn, checkIn, checkOut, checkOut, `%${guest}%`, `%${orderNo}%`, status);
   const [rows] = await db.execute(sql, [userId, checkIn, checkIn, checkOut, checkOut, `%${guest}%`, `%${orderNo}%`, status]);
   return rows;
 };

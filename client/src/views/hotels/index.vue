@@ -13,13 +13,51 @@ import AttachedHotel from "./component/AttachedHotel.vue";
 import MoreHotel from "./component/MoreHotel.vue";
 import PriceDescription from "./component/PriceDescription.vue";
 import HotelRecommend from "./component/HotelRecommend.vue";
-import PicturePreview from "./component/PicturePreview.vue";
+// import PicturePreview from "./component/PicturePreview.vue";
 
-import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { ref, watch } from "vue";
+import { useRoute,useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const hotelCardRef = ref(null);
+
+
+// 用于传递给 HotelTab 的初始值（从 URL 获取）
+// 1. 定义响应式的初始配置
+const initialConfig = ref({});
+// 2. 封装一个解析 URL 参数的方法
+const syncParamsFromUrl = () => {
+  initialConfig.value = {
+    checkIn: route.query.checkIn,
+    checkOut: route.query.checkOut,
+    adults: route.query.adult,
+    children: route.query.children,
+    rooms: route.query.rooms, // 对应你 URL 中的 rooms 参数
+    city: route.query.city,
+  };
+};
+
+// . 监听路由变化，一旦 URL 变了就重新解析配置
+watch(() => route.query, (newQuery) => {
+    // 可以在这里触发全局的刷新逻辑
+    syncParamsFromUrl();
+},{ immediate: true, deep: true });
+
+const handleUpdateFormData = (data) => {
+  bookingParams.value = data;
+  router.push({
+    query: {
+    ...route.query,
+    checkIn: data.checkIn ,
+    checkOut: data.checkOut,
+    adult: data.adults,
+    children: data.children,
+    rooms: data.rooms,
+    }
+  });
+};
+
 
 const scrollToRoom = () => {
   if (hotelCardRef.value) {
@@ -32,19 +70,16 @@ const bookingParams = ref({});
 const handleUpdateRooms = (rooms) => {
   roomList.value = rooms;
 };
-const handleUpdateFormData = (data) => {
-  bookingParams.value = data;
-};
 </script>
 
 <template>
   <div>
-    <SearchBar></SearchBar>
+    <SearchBar :initial-config="initialConfig"></SearchBar>
     <HotelHeader
       style="margin-top: 40px"
       @scrollToRoomEvent="scrollToRoom"
     ></HotelHeader>
-    <HotelTab style="margin-top: 40px" @updateRooms="handleUpdateRooms" @updateFormData="handleUpdateFormData"></HotelTab>
+    <HotelTab style="margin-top: 40px" :initial-config="initialConfig" @updateRooms="handleUpdateRooms" @updateFormData="handleUpdateFormData"></HotelTab>
     <HotelCard ref="hotelCardRef" style="margin-top: 40px" :rooms="roomList" :bookingParams="bookingParams" :hotelId="route.query.hotelId"></HotelCard>
     <HotelComment style="margin-top: 40px"></HotelComment>
     <HotelLocation style="margin-top: 40px"></HotelLocation>

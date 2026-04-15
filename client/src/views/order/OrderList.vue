@@ -101,8 +101,8 @@
                 </div>
               </div>
               <div class="action-buttons">
-                <button class="btn-plain">酒店详情</button>
-                <button class="btn-plain">再次预订</button>
+                <button class="btn-plain" @click="gotoHotelDetail(order)">酒店详情</button>
+                <button class="btn-plain" @click="gotoHotelDetail(order)">再次预订</button>
               </div>
             </div>
           </div>
@@ -136,10 +136,12 @@ import HeadComponent from '../../components/HeadComponent.vue';
 import BottomComponent from '../../components/BottomComponent.vue';
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { deleteOrderApi, searchUserOrders } from '../../api/order';
+import { useRouter } from 'vue-router';
 
 
 
 const userStore = useUserStore();
+const router = useRouter();
 const allOrders = ref([]);
 
 // 删除订单
@@ -250,6 +252,21 @@ watch(activeTab, () => {
   currentPage.value = 1
 })
 
+// 详情跳转
+const gotoHotelDetail = (order) => {
+   router.push({
+    path: '/hotels',
+    query: {
+      hotelId: order.hotelId,
+      city: order.city,
+      checkIn: order.checkIn,
+      checkOut: order.checkOut,
+      adult: order.adults || 1,
+      children: order.children || 0,
+      rooms: order.rooms || 1,
+    }
+   })
+}
 
 // 下载功能
 const handleDownload = () => {
