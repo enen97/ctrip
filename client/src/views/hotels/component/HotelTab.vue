@@ -22,7 +22,10 @@
           @update="handleDateUpdate"
         />
         <div class="guest-picker">
-          <GuestPickerSection v-model="formData" />
+          <GuestPickerSection
+            :modelValue="formData"
+            @update:modelValue="Object.assign(formData, $event)"
+          />
         </div>
       </div>
     </div>
@@ -41,15 +44,17 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { getHotelRooms } from "../../../api/hotel.js";
 import DatePickerSection from "/src/components/DatePickerSection.vue";
 import GuestPickerSection from "/src/components/GuestPickerSection.vue";
 // ✅ 数据中心（父组件统一管理）
 const formData = reactive({
-  checkIn: null,
-  checkOut: null,
-  checkInText: "3月26日",
-  checkOutText: "3月27日",
+  checkIn: new Date(2026, 3, 16), // 4月16日 (月份从0开始)
+  checkOut: new Date(2026, 3, 17), // 4月17日
+  checkInText: "4月16日",
+  checkOutText: "4月17日",
   nights: 1,
 
   rooms: 1,
@@ -65,6 +70,8 @@ const handleDateUpdate = (data) => {
   formData.checkInText = formatDate(data.start);
   formData.checkOutText = formatDate(data.end);
 };
+
+
 // 日期格式化
 const formatDate = (date) => {
   const m = date.getMonth() + 1;
@@ -74,6 +81,53 @@ const formatDate = (date) => {
   ];
   return `${m}月${d}日(${week})`;
 };
+
+const emit = defineEmits(["updateRooms", "updateFormData"]);
+const route = useRoute();
+
+const fetchRooms = async () => {
+  console.log('数据变化', formData);
+  if (!formData.checkIn || !formData.checkOut) return;
+  
+  const formatDateForApi = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  try {
+    const res = await getHotelRooms(route.query.hotelId, {
+      checkIn: formatDateForApi(formData.checkIn),
+      checkOut: formatDateForApi(formData.checkOut),
+      rooms: formData.rooms,
+      adults: formData.adults,
+      children: formData.children
+    });
+    emit("updateRooms", res.data || []);
+    emit("updateFormData", {
+      checkIn: formatDateForApi(formData.checkIn),
+      checkOut: formatDateForApi(formData.checkOut),
+      checkInText: formData.checkInText,
+      checkOutText: formData.checkOutText,
+      nights: formData.nights,
+      rooms: formData.rooms,
+      adults: formData.adults,
+      children: formData.children
+    });
+  } catch (error) {
+    console.error("Failed to fetch rooms:", error);
+  }
+};
+
+watch(formData, (newVal) => {
+  console.log('数据变化了', newVal);
+  fetchRooms();
+}, { deep: true });
+onMounted(() => {
+  // Wait for initial checkIn/checkOut from DatePickerSection if they are set asynchronously, Or fetch immediately if they exist.
+  if (formData.checkIn) fetchRooms();
+});
 
 const tabs = [
   { name: "概览" },

@@ -50,7 +50,7 @@ function parseFacilities(data) {
 const getHotelDetail = async (hotelId) => {
   const hotel = await hotelModel.getHotelById(hotelId);
   const images = await hotelModel.getHotelImages(hotelId);
-  console.log("酒店详情数据：", hotelId, hotel, images);
+  // console.log("酒店详情数据：", hotelId, hotel, images);
   if (!hotel) return null;
   return {
     name: hotel.name,
@@ -68,7 +68,23 @@ const getHotelDetail = async (hotelId) => {
   };
 };
 
+const getHotelRooms = async (hotelId, data) => {
+  const { checkIn, checkOut, rooms, adults, children } = data;
+  if (!checkIn || !checkOut || !rooms) return [];
+  const roomsData = await hotelModel.getHotelRooms(hotelId, checkIn, checkOut, rooms, adults, children);
+  return roomsData;
+};
+
+const getRoomAvailability = async (data) => {
+  const { roomTypeId, checkIn, checkOut } = data;
+  if (!roomTypeId || !checkIn || !checkOut) return [];
+  const availability = await hotelModel.getRoomAvailability(roomTypeId, checkIn, checkOut);
+  return availability;
+};
+
 module.exports = {
   getHotelList,
   getHotelDetail,
+  getHotelRooms,
+  getRoomAvailability
 };

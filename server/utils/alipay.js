@@ -1,0 +1,29 @@
+const { AlipaySdk } = require("alipay-sdk");
+
+/**
+ * 支付宝沙箱配置
+ * 请根据自己的沙箱环境替换 appId, privateKey 和 alipayPublicKey
+ * 获取地址: https://open.alipay.com/develop/sandbox/app
+ */
+// 卖家支付账号 yrbwnj8843@sandbox.com
+const alipaySdk = new AlipaySdk({
+  // 替换为您的沙箱 appId
+  appId: "9021000143665375",
+
+  // 对应沙箱应用中的应用私钥 (确保已去除空格和换行)
+  privateKey: `MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCMGfv4zePq+urssKGtwfAmt9i0Jz7zXILoRz41aZjmo1p0pz72c3SATo+OEArzTpiJ1Sp065eIGkTb66KFdebdL0NSvUBmN0C3RfPYM2rnQcg4fbDz/jhcmHWKpto4g9NhKbnvKzq5lIDR3q7SOqq7CJelthu3YyukgiqzOgFUrjFXBH+6N/aL25mnZnLSLRxgbjCTFVPBVKU7mLgYbfObdW9WoqTGcgJONbq8c3+mJm95zm4drlh3hnzn6QwHNGSaFmzHRaxNVe2lSTnGPhtkPQVpo/tXOe4V5kaGAKTJq0J8u0NdnP8jzGS3uob8vG2CaFgMKvxtJNuxHQ6jwyCJAgMBAAECggEACB+ZlJubk4xpAsBbH5AXNKeEUS3VYJcEoCNBYCd3Tig6nnj0FaYsIyRq/nm/qMvt3FAX3h+q8aFUTMwk6Egl0r1i0fFXQpYBkp7jvK1+jVorGdtv3zXmXrgYWKnEDXLXVtLsjQmcphYOQhz/VgFA1Qdyg5FDmiaN6UQC5dF/MkGxFgf9Zgfb8V1hOUJUc8s0qrIQ/HFgDmWFFqDudqUbh9fPzln2Y9RWfj1LUBtdZJujOuv+e0Ba3YUgse4pxkNAnSsovBv07cNxYfcTENd15kxGJ/dBomJz4pHitFVDXCzp3p/AMhM39QfuF0OUL+2b9riHH7IfsKrYHnG9o7xRYQKBgQDjZw1grvUjkKHHanb8IdZS9A34cHnWC1pLVmhrWAJLLpYNkWwSZk3HqtLsmTST8N9XqHAo8d9Zv4KUlGGB9ttjgvJZy0x9CvEvDY+aYOBerL2dQnkfi7QxdEtb5nSh5FaN4eGvvt/nYEkd97+8n51w3fO8lcmJLnVKPTkIETqymwKBgQCduGGaDq3xFHegNSaXJu4zMss4xknOkX4oklL9BBZbj63SiLtfUwXkO6cln0ryLWS+/RNDEPCJXxbkFAK1a6FMg8EMkPIbvcmVzqq7bUe5olURosK74vX0V+tnPXXvZZT40Bi2h1V6X9Csqk8sN0YRXqDyN8daQ+eQ07K00okpqwKBgCvT1cE3lymGm5eKjmojv2H3haXHT8QQJhP1EGT37mE9FlCBIZoeO4lrBAHzuS12NCV54jwR+eEbRviJ7I0W3cu9FiZ2R0SmUjumWnH/j97PXjAr+po4277YUhnhPcNh9cicq1mq6Q54AT+UW1DoVnjFXk+PcutMl/B6Aj7qyyxXAoGBAIoj6VCe1NjXvWMTyoYPMgijz30dp52Gr0Hnz0oOn2p4sJ065yo5tGpPmTmJiIIPIjNpw8o09wjKwWjo4ep2p6M1rwtLlNKZawuMJNvefjjoJqw4q2kXA6eMrgERws74YP+AfHS6mjKB42qoDIpEq1khUcR0+GVmHlcqJFbeJAbbAoGAU8h4AAsMY3nGVzPOWZ0pfKuq3UpBuubZCE6tyO7C8WBphmu1xYLDkOfpFmReM10+m0Zhioe/UfO0iyylbPr3+N0rZjxFopApGV1sP/aFHBt0bBKItDgaprqRsyNF+r1fHFMrNTasmZiQOc4wxpPFCM5wqE9Y1uuOlaPk9VKQS7A=`.trim(),
+
+  // 对应沙箱应用中的支付宝公钥
+  alipayPublicKey: `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs6edUQ9sGrlHLEp3FthUioNASGCUWa2TBI0Y/tedzzjG0vx3eBHh/80PR9xmir0+oxfLWGcbcJ6q73T05/ursir4Uc0sJyIrxF/1Al26YIlviC+0ayW9p2eM3ewUwFBANMSWfY7My9TnMT9FCKQd3oWJZkFQZ9iyQIgVSamY9/LBKoG8PmKAI2YeJmRZBXrRpEdpTQ+V3uoTyTt6++u6zp3LwJjefc79rC1Vy4gC9U1b72StedA8mTB8iurqyLsSId8uqChW+f2W3AsVy1xSq26apnIbfYCgDVdZ0vkj1ZiG1wQjoCSdYEiknRqfKWZBSGYr6N+AF9TUPU4CIT6StQIDAQAB`.trim(),
+
+  // 沙箱网关路径
+  gateway: "https://openapi-sandbox.dl.alipaydev.com/gateway.do",
+
+  // 签名方式
+  signType: "RSA2",
+
+  // 设置编码
+  charset: "utf-8",
+});
+
+module.exports = alipaySdk;

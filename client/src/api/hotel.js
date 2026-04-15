@@ -16,3 +16,21 @@ export const getHotelDetail = (id) => {
     method: "get",
   });
 }
+
+// 获取酒店房间列表
+export const getHotelRooms = (id, data) => {
+  return request({
+    url: `/hotels/${id}/rooms`,
+    method: "post",
+    data,
+  });
+}
+
+// 获取特定房型的实时库存和价格
+export const getRoomAvailability = (data) => {
+  return request({
+    url: "/rooms/availability",
+    method: "post",
+    data,
+  });
+}

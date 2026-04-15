@@ -87,9 +87,8 @@
 
 <style scoped lang="less">
 .bottom-container {
-    height: 452px;
     background-color: #f8fafd;
-    padding: 0 50px;
+    padding: 100px 50px;
     font-size: 12px;
     color: #666;
     .bottom-up {

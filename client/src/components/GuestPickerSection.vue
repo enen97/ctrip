@@ -54,6 +54,7 @@ watch(
   (val) => Object.assign(form, val),
 );
 
+
 const config = [
   { label: "房间", key: "rooms", min: 1 },
   { label: "成人", sub: "18岁及以上", key: "adults", min: 1 },

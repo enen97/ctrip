@@ -1,82 +1,97 @@
 <template>
-  <div class="room-card">
-    <div class="room-title">观景豪华大床房（手机投屏+迷你吧）</div>
+  <div class="hotel-cards-container">
+    <div class="room-card" v-for="room in rooms" :key="room.id">
+      <div class="room-title">{{ room.name }}</div>
 
-    <div class="room-container">
-      <aside class="room-info-side">
-        <div class="image-gallery">
-          <div class="main-img">
-            <img
-              src="https://dimg04.c-ctrip.com/images/1mc1u12000o1zfece8F66_R_400_200_R5.webp"
-              alt="room"
-            />
-          </div>
-          <div class="sub-imgs">
-            <img
-              src="https://dimg04.c-ctrip.com/images/0200i120008abw8ay0E94_R_200_100_R5.webp"
-              alt="sub"
-            />
-            <div class="img-more">
+      <div class="room-container">
+        <aside class="room-info-side">
+          <div class="image-gallery">
+            <div class="main-img">
               <img
-                src="https://dimg04.c-ctrip.com/images/20031e000001flkkl53D3_R_200_100_R5.webp"
+                :src="room.image1 || 'https://dimg04.c-ctrip.com/images/1mc1u12000o1zfece8F66_R_400_200_R5.webp'"
+                alt="room"
+              />
+            </div>
+            <div class="sub-imgs">
+              <img
+                :src="room.image2 || 'https://dimg04.c-ctrip.com/images/0200i120008abw8ay0E94_R_200_100_R5.webp'"
                 alt="sub"
               />
-              <span class="count">📷 10</span>
+              <div class="img-more">
+                <img
+                  :src="room.image3 || 'https://dimg04.c-ctrip.com/images/20031e000001flkkl53D3_R_200_100_R5.webp'"
+                  alt="sub"
+                />
+              </div>
             </div>
           </div>
+          <ul class="info-list">
+            <li><span class="icon">🛏️</span> {{ room.bed_type }}</li>
+            <li><span class="icon">📏</span> {{ room.area }}平方米</li>
+            <li><span class="icon">👤</span> 最多{{ room.max_people }}人</li>
+            <li v-if="room.min_stock !== undefined"><span class="icon">📦</span> 剩余库存: {{ room.min_stock }}</li>
+          </ul>
+          <a href="javascript:;" class="detail-link">房间详情</a>
+        </aside>
+
+        <div class="room-right">
+          <main class="room-plans-side">
+            <div class="plan-header">
+              <div class="col-summary">房型摘要</div>
+              <div class="col-guests">可住人数</div>
+              <div class="col-price"> </div>
+            </div>
+
+            <div class="plan-row" v-for="(plan, index) in plans" :key="room.id + '-' + index">
+              <div class="col-summary">
+                <div :class="['breakfast', plan.hasBreakfast ? 'green' : 'gray']">
+                  <span class="icon">🍽️</span> {{ plan.breakfastText }}
+                  <span class="help-icon">?</span>
+                </div>
+                <ul class="policy-list">
+                  <li class="green">✔️ {{ plan.cancelPolicy }}</li>
+                  <li class="green">⚡ {{ plan.confirmPolicy }}</li>
+                  <li>💳 在线付</li>
+                  <li class="green">🌟 至多3间</li>
+                </ul>
+              </div>
+
+              <div class="col-guests">
+                <span class="guest-icons">{{ "👤".repeat(room.max_people) }}</span>
+              </div>
+
+              <div class="col-price">
+                <div class="book-price">￥<span>{{ getPrice(room, plan) }}</span></div>
+                <button class="book-btn" @click="handleBook(room, plan)">预订酒店</button>
+              </div>
+            </div>
+          </main>
         </div>
-        <ul class="info-list">
-          <li><span class="icon">🛏️</span> 1张1.8米大床</li>
-          <li class="green"><span class="icon">🪟</span> 有窗</li>
-          <li><span class="icon">🚫</span> 禁烟</li>
-          <li><span class="icon">📏</span> 31平方米 | 5-16层</li>
-          <li class="green"><span class="icon">📶</span> Wi-Fi免费</li>
-        </ul>
-        <a href="javascript:;" class="detail-link">房间详情</a>
-      </aside>
-
-      <div class="room-right">
-        <main class="room-plans-side">
-          <div class="plan-header">
-            <div class="col-summary">房型摘要</div>
-            <div class="col-guests">可住人数</div>
-            <div class="col-price">今日价格</div>
-          </div>
-
-          <div class="plan-row" v-for="(plan, index) in plans" :key="index">
-            <div class="col-summary">
-              <div :class="['breakfast', plan.hasBreakfast ? 'green' : 'gray']">
-                <span class="icon">🍽️</span> {{ plan.breakfastText }}
-                <span class="help-icon">?</span>
-              </div>
-              <ul class="policy-list">
-                <li class="green">✔️ {{ plan.cancelPolicy }}</li>
-                <li class="green">⚡ {{ plan.confirmPolicy }}</li>
-                <li>💳 在线付</li>
-                <li class="green">🌟 至多3间</li>
-              </ul>
-              <div v-if="plan.gift" class="gift-box">
-                <span class="icon">🎁</span> {{ plan.gift }}
-                <span class="arrow-right">></span>
-              </div>
-            </div>
-
-            <div class="col-guests">
-              <span class="guest-icons">👤👤</span>
-            </div>
-
-            <div class="col-price">
-              <button class="book-btn">解锁优惠</button>
-            </div>
-          </div>
-        </main>
-        <div class="plan-footer">展示额外2个房型价格</div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { defineProps } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const props = defineProps({
+  rooms: {
+    type: Array,
+    default: () => [],
+  },
+  hotelId: {
+    type: [String, Number],
+    default: null,
+  },
+  bookingParams: {
+    type: Object,
+    default: () => ({}),
+  },
+});
 const plans = [
   {
     breakfastText: "无早餐",
@@ -93,9 +108,40 @@ const plans = [
     gift: null,
   },
 ];
+
+const getPrice = (room, plan) => {
+  const base = parseFloat(room.min_price) || 0
+  return (plan.hasBreakfast ? base + 50 : base).toFixed(2)
+}
+
+const handleBook = (room, plan) => {
+  router.push({
+    path: '/payment',
+    query: {
+      hotelId: props.hotelId,
+      roomTypeId: room.id,
+      roomName: room.name,
+      area: room.area,
+      maxPeople: room.max_people,
+      hasBreakfast: plan.hasBreakfast ? '1' : '0',
+      // booking params from HotelTab
+      checkIn: props.bookingParams.checkIn,
+      checkOut: props.bookingParams.checkOut,
+      rooms: props.bookingParams.rooms,
+      adults: props.bookingParams.adults,
+      children: props.bookingParams.children,
+    }
+  });
+};
 </script>
 
 <style lang="less" scoped>
+.hotel-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .room-card {
   overflow: hidden;
   border-radius: 10px;
@@ -304,6 +350,13 @@ const plans = [
             align-items: end;
             justify-content: end;
             padding: 16px;
+            .book-price {
+              font-size: 24px;
+              font-weight: bold;
+              color: #006ff6;
+              margin-right: 16px;
+              border-bottom: 1px dashed #c5c5c5;
+            }
 
             .book-btn {
               background-color: #006ff6;
@@ -321,14 +374,6 @@ const plans = [
             }
           }
         }
-      }
-      .plan-footer {
-        padding: 12px;
-        text-align: center;
-        font-size: 13px;
-        color: #006ff6;
-        cursor: pointer;
-        background: #fff;
       }
     }
   }

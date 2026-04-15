@@ -1266,6 +1266,7 @@ const gotoHotel = (id) => {
                     class="hotel-item"
                     v-for="hotel in slide.hotels"
                     :key="hotel.name"
+                    @click.stop="gotoHotel(hotel.id)"
                   >
                     <img :src="hotel.img" class="hotel-img" />
                     <div class="hotel-info">
@@ -1490,6 +1491,7 @@ const gotoHotel = (id) => {
             position: relative;
             width: 50%;
             margin-left: 4px;
+            flex: 1;
             label {
               position: absolute;
               top: 0px;
@@ -1557,6 +1559,7 @@ const gotoHotel = (id) => {
           }
           // 日期选择
           .hotel-calendar-container {
+            flex: 2;
             position: relative;
             margin-left: 10px;
             width: 50%;

@@ -5,7 +5,10 @@ import DishComponent from "./components/DIshComponent.vue";
 </script>
 
 <template>
-  <div class="common-layout">
+  <div v-if="$route.meta.hideLayout">
+    <router-view />
+  </div>
+  <div v-else class="common-layout">
     <el-container>
       <el-aside style="position: fixed; height: 100vh" width="auto"
         ><DishComponent></DishComponent

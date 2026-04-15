@@ -16,13 +16,24 @@ import HotelRecommend from "./component/HotelRecommend.vue";
 import PicturePreview from "./component/PicturePreview.vue";
 
 import { ref } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const hotelCardRef = ref(null);
 
 const scrollToRoom = () => {
   if (hotelCardRef.value) {
     hotelCardRef.value.$el.scrollIntoView({ behavior: "smooth" });
   }
+};
+
+const roomList = ref([]);
+const bookingParams = ref({});
+const handleUpdateRooms = (rooms) => {
+  roomList.value = rooms;
+};
+const handleUpdateFormData = (data) => {
+  bookingParams.value = data;
 };
 </script>
 
@@ -33,8 +44,8 @@ const scrollToRoom = () => {
       style="margin-top: 40px"
       @scrollToRoomEvent="scrollToRoom"
     ></HotelHeader>
-    <HotelTab style="margin-top: 40px"></HotelTab>
-    <HotelCard ref="hotelCardRef" style="margin-top: 40px"></HotelCard>
+    <HotelTab style="margin-top: 40px" @updateRooms="handleUpdateRooms" @updateFormData="handleUpdateFormData"></HotelTab>
+    <HotelCard ref="hotelCardRef" style="margin-top: 40px" :rooms="roomList" :bookingParams="bookingParams" :hotelId="route.query.hotelId"></HotelCard>
     <HotelComment style="margin-top: 40px"></HotelComment>
     <HotelLocation style="margin-top: 40px"></HotelLocation>
     <ServiceFacility style="margin-top: 40px"></ServiceFacility>

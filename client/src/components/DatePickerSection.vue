@@ -10,7 +10,7 @@
       <span class="val">{{ checkOutText }}</span>
     </div>
 
-    <div class="tag-night">{{ nights }}晚</div>
+    <div class="tag-night" v-if="!hideNight">{{ nights }}晚</div>
 
     <div class="dropdown-panel" v-if="active" @click.stop>
       <CalendarPicker
@@ -32,6 +32,10 @@ const props = defineProps({
   checkInText: String,
   checkOutText: String,
   nights: Number,
+  hideNight: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["update"]);
