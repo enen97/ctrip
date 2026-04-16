@@ -13,6 +13,7 @@ const routes = [
     meta: { hideLayout: true },
   },
   { path: "/hotels", component: () => import("../views/hotels/index.vue") },
+  { path: "/hotels/list", component: () => import("../views/hotels/HotelList.vue") },
   {
     path: "/payment",
     component: () => import("../views/order/PaymentView.vue"),

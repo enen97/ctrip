@@ -34,6 +34,7 @@ const goToSlide = (index) => {
 const searchCity = ref("重庆");
 const showDropdown = ref(false);
 const selectedCity = ref("");
+const searchKeyword = ref("");
 
 // 国内热门城市
 const domesticCities = [
@@ -245,10 +246,11 @@ const isLevelVisible = ref(false);
 const selectedLevels = ref([]); // 存放选中的星级，例如 ['三星', '五星']
 
 const levelOptions = [
-  "二星（钻）及以下",
-  "三星（钻）",
-  "四星（钻）",
-  "五星（钻）",
+  "一星",
+  "二星",
+  "三星",
+  "四星",
+  "五星",
 ];
 // 顶部显示的文字逻辑
 const levelDisplayText = computed(() => {
@@ -276,6 +278,33 @@ const resetLevels = () => {
 const confirmLevels = () => {
   isLevelVisible.value = false;
   // 这里可以 emit 事件给父组件发送数据
+};
+
+
+// 格式化日期
+const formatDateTime = (date) => {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const gotoHotelList = () => {
+  // console.log(searchCity.value, searchKeyword.value, formatDateTime(range.value.start), formatDateTime(range.value.end), bookingInfo.rooms, bookingInfo.adults, bookingInfo.children, levelDisplayText.value);
+  router.push({
+    path: "/hotels/list",
+    query: {
+      city: searchCity.value,
+      checkIn: formatDateTime(range.value.start),
+      checkOut: formatDateTime(range.value.end),
+      rooms: bookingInfo.rooms,
+      adults: bookingInfo.adults,
+      children: bookingInfo.children,
+      level: levelDisplayText.value,
+      keyword: searchKeyword.value,
+    },
+  });
 };
 
 // 左侧轮播图
@@ -792,6 +821,7 @@ const gotoHotel = (id) => {
   <div>
     <div class="home-content">
       <div class="content-left">
+
         <div class="hotel-search">
           <div class="hotel-search-top">
             <div class="hotel-search-top-bgimg"></div>
@@ -1010,10 +1040,10 @@ const gotoHotel = (id) => {
 
                 <div class="hotel-keyword">
                   <span>关键词（选填）</span>
-                  <input type="text" placeholder="机场/火车站/酒店名称..." />
+                  <input type="text" v-model="searchKeyword" placeholder="机场/火车站/酒店名称..." />
                 </div>
               </div>
-              <button class="search-btn">
+              <button class="search-btn" @click="gotoHotelList">
                 <svg
                   viewBox="0 0 256 256"
                   xmlns="http://www.w3.org/2000/svg"
@@ -1031,6 +1061,10 @@ const gotoHotel = (id) => {
             </div>
           </div>
         </div>
+
+
+
+
         <div class="carousel-box-left">
           <div class="banner-wrapper">
             <el-carousel

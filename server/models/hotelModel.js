@@ -34,6 +34,107 @@ const getTopHotels = async (address) => {
   return rows;
 };
 
+// 搜索酒店（多条件筛选）
+const searchHotels = async (filters) => {
+  const {
+    city, checkIn, checkOut, rooms, adults, children,
+    priceMin, priceMax, levels, keyword, scoreMin, reviewsMin, facilities
+  } = filters;
+
+  // 计算入住天数 (离店日期 - 入住日期)
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
+  const dayCount = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+  if (dayCount <= 0) throw new Error("离店日期必须大于入住日期");
+
+  let params = [];
+
+  // 1. 核心 SQL 逻辑
+  // 我们需要找到满足条件的房型，然后对应到酒店
+  let sql = `
+    SELECT 
+      h.*, 
+      MIN(rt.base_price) as min_price -- 返回该酒店符合条件房型的最低价
+    FROM hotel h
+    INNER JOIN room_type rt ON h.id = rt.hotel_id
+    WHERE 1=1
+  `;
+
+  // 2. 基础限制：人数筛选
+  // 房型最大入住人数 >= (成人 + 儿童)
+  sql += " AND rt.max_people >= ?";
+  params.push(Number(adults) + Number(children));
+
+  // 3. 核心限制：库存校验 (日期范围内每一天都有房)
+  // 原理：在 room_inventory 查找对应日期区间，可用库存 >= 请求房间数的记录数，必须等于入住天数
+  sql += `
+    AND rt.id IN (
+      SELECT room_type_id 
+      FROM room_inventory 
+      WHERE date >= ? AND date < ? 
+        AND (stock - locked_stock) >= ?
+      GROUP BY room_type_id 
+      HAVING COUNT(*) = ?
+    )
+  `;
+  params.push(checkIn, checkOut, rooms, dayCount);
+
+  // 4. 动态过滤条件
+  if (city) {
+    sql += " AND h.city = ?";
+    params.push(city);
+  }
+
+  if (keyword) {
+    sql += " AND (h.name LIKE ? OR h.address LIKE ?)";
+    params.push(`%${keyword}%`, `%${keyword}%`);
+  }
+
+  // 星级过滤 (levels 是数组 [1, 2, 3])
+  if (levels && levels.length > 0) {
+    sql += ` AND h.star_level IN (${levels.map(() => '?').join(',')})`;
+    params.push(...levels);
+  }
+
+  if (priceMin !== undefined && priceMin !== null) {
+    sql += " AND rt.base_price >= ?";
+    params.push(priceMin);
+  }
+
+  if (priceMax !== undefined && priceMax !== null) {
+    sql += " AND rt.base_price <= ?";
+    params.push(priceMax);
+  }
+
+  if (scoreMin) {
+    sql += " AND h.score >= ?";
+    params.push(scoreMin);
+  }
+
+  if (reviewsMin) {
+    sql += " AND h.reviews >= ?";
+    params.push(reviewsMin);
+  }
+
+  // 设施过滤 (JSON 包含校验)
+  if (facilities) {
+    // 只要 facilities 这个大字符串里包含 "叫车服务" 几个字就行
+    sql += " AND h.facilities LIKE ?";
+    params.push(`%${facilities}%`);
+  }
+
+  // 5. 分组与排序
+  // 因为是以酒店为单位展示，所以按酒店 ID 分组
+  sql += " GROUP BY h.id";
+  sql += " ORDER BY h.score DESC, h.id ASC";
+
+  // console.log("执行综合搜索SQL:", sql, params);
+  const [rows] = await db.query(sql, params);
+  // console.log("执行综合搜索SQL结果11:", rows);
+  return rows;
+};
+
 // 查询酒店基本信息
 const getHotelById = async (hotelId) => {
   const [rows] = await db.query(
@@ -114,6 +215,7 @@ const getRoomAvailability = async (roomTypeId, checkIn, checkOut) => {
 
 module.exports = {
   getTopHotels,
+  searchHotels,
   getHotelById,
   getHotelImages,
   getHotelRooms,

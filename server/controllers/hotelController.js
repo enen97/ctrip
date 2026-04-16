@@ -49,10 +49,23 @@ const getRoomAvailability = async (req, res) => {
   }
 };
 
+const searchHotels = async (req, res) => {
+  console.log("searchHotels controller hit");
+  try {
+    console.log("Query Params:", req.query);
+    const data = await hotelService.searchHotels(req.query);
+    res.json(success(data));
+  } catch (err) {
+    console.error(err);
+    res.json(error("服务器错误"));
+  }
+};
+
 
 module.exports = {
   getHotels,
   getHotelDetail,
   getHotelRooms,
-  getRoomAvailability
+  getRoomAvailability,
+  searchHotels
 };

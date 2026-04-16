@@ -34,3 +34,12 @@ export const getRoomAvailability = (data) => {
     data,
   });
 }
+
+// 搜索酒店
+export const searchHotels = (params) => {
+  return request({
+    url: "/hotels/search",
+    method: "get",
+    params,
+  });
+};

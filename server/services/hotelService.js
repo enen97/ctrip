@@ -71,20 +71,133 @@ const getHotelDetail = async (hotelId) => {
 const getHotelRooms = async (hotelId, data) => {
   const { checkIn, checkOut, rooms, adults, children } = data;
   if (!checkIn || !checkOut || !rooms) return [];
-  const roomsData = await hotelModel.getHotelRooms(hotelId, checkIn, checkOut, rooms, adults, children);
+  const roomsData = await hotelModel.getHotelRooms(
+    hotelId,
+    checkIn,
+    checkOut,
+    rooms,
+    adults,
+    children,
+  );
   return roomsData;
 };
 
 const getRoomAvailability = async (data) => {
   const { roomTypeId, checkIn, checkOut } = data;
   if (!roomTypeId || !checkIn || !checkOut) return [];
-  const availability = await hotelModel.getRoomAvailability(roomTypeId, checkIn, checkOut);
+  const availability = await hotelModel.getRoomAvailability(
+    roomTypeId,
+    checkIn,
+    checkOut,
+  );
   return availability;
+};
+
+const searchHotels = async (filterData) => {
+  const {
+    city,
+    checkIn,
+    checkOut,
+    rooms,
+    adults,
+    children,
+    priceMin,
+    priceMax,
+    level,
+    keyword,
+  } = filterData || {};
+  // 兼容前端可能传来的 filters 或 filters[] (axios 默认配置)
+  const filters = filterData.filters || filterData["filters[]"];
+
+  const levels = [];
+  let scoreMin = 0;
+  let reviewsMin = 0;
+  let facilities = "";
+
+  // 解析首页传来的 level 字符串 (如 "三星、五星")
+  if (level && level !== "不限") {
+    const levelMap = { 一星: 1, 二星: 2, 三星: 3, 四星: 4, 五星: 5 };
+    level.split("、").forEach((l) => {
+      if (levelMap[l]) levels.push(levelMap[l]);
+    });
+  }
+
+  // 解析列表页传来的 filters 数组/字符串
+  let filterList = [];
+  if (Array.isArray(filters)) {
+    filterList = filters;
+  } else if (typeof filters === "string") {
+    filterList = filters.split(",");
+  }
+
+  filterList.forEach((f) => {
+    const [type, value] = f.split("-");
+    if (type === "分数") {
+      const score = parseFloat(value);
+      if (!isNaN(score) && score > scoreMin) scoreMin = score;
+    } else if (type === "点评数") {
+      const reviews = parseInt(value);
+      if (!isNaN(reviews) && reviews > reviewsMin) reviewsMin = reviews;
+    } else if (type === "设施服务") {
+      facilities = value;
+    }
+  });
+
+  console.log(
+    "解析后的参数：",
+    city,
+    checkIn,
+    checkOut,
+    rooms,
+    adults,
+    children,
+    priceMin,
+    priceMax,
+    levels,
+    keyword,
+    scoreMin,
+    reviewsMin,
+    facilities,
+  );
+
+  const data = await hotelModel.searchHotels({
+    city,
+    checkIn,
+    checkOut,
+    rooms,
+    adults,
+    children,
+    priceMin,
+    priceMax,
+    levels,
+    keyword,
+    scoreMin,
+    reviewsMin,
+    facilities,
+  });
+
+  return {
+    list: data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      star: item.star_level,
+      score: item.score,
+      totalPrice: item.price,
+      minPrice: item.min_price,
+      mainImg: item.mainImg,
+      address: `${item.district || ""} · ${item.address || ""}`,
+      recommendText: item.recommend_text || "超棒酒店",
+      commentCount: item.reviews || 0,
+      isAd: item.is_ad || false,
+    })),
+    total: data.length,
+  };
 };
 
 module.exports = {
   getHotelList,
+  searchHotels,
   getHotelDetail,
   getHotelRooms,
-  getRoomAvailability
+  getRoomAvailability,
 };
