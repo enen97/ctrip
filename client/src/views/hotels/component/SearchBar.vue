@@ -32,10 +32,10 @@
       </div>
 
       <div class="section keyword">
-        <input type="text" placeholder="位置/品牌/酒店 (选填)" />
+        <input type="text" v-model="formData.keyword" placeholder="位置/品牌/酒店 (选填)" />
       </div>
 
-      <button class="btn-search">
+      <button class="btn-search" @click="handleSearch">
         <el-icon><RefreshRight /></el-icon>搜索
       </button>
     </div>
@@ -52,21 +52,62 @@ import {
   CircleCloseFilled,
   RefreshRight,
 } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps(['initialConfig']);
+const router = useRouter();
 
 const formData = reactive({
   city: "上海",
-  checkIn: "null",
-  checkOut: "null",
-  checkInText: "3月26日(周四)", // 默认初始值
-  checkOutText: "3月27日(周五)",
+  checkIn: null,
+  checkOut: null,
+  checkInText: "", // 默认初始值
+  checkOutText: "",
   nights: 0,
   rooms: 1,
   adults: 2,
   children: 0,
+  keyword: ''
 });
 
+// 搜索
+const handleSearch = () => {
+  console.log(formData)
+  console.log(formatDateTime(formData.checkIn))
+  console.log(formatDateTime(formData.checkOut))
+  router.push({
+    path: '/hotels/list',
+    query: {
+      city: formData.city,
+      checkIn: formatDateTime(formData.checkIn),
+      checkOut: formatDateTime(formData.checkOut),
+      adults: formData.adults,
+      children: formData.children,
+      rooms: formData.rooms,
+      keyword: formData.keyword,
+    }
+  });
+}
+
+// 格式化日期
+// 格式化日期：支持 Date 对象和 字符串
+const formatDateTime = (dateInput) => {
+  // 1. 防御空值
+  if (!dateInput) return "";
+
+  // 2. 核心：强制转换为 Date 对象
+  // 哪怕 dateInput 已经是 Date 对象了，new Date(dateInput) 也不会报错
+  const date = new Date(dateInput);
+
+  // 3. 检查转换是否成功（防止 dateInput 是乱码字符串）
+  if (isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+};
 // 简单的日期格式化工具
 const formatDate = (date) => {
   const m = date.getMonth() + 1;

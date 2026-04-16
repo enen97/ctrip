@@ -9,8 +9,10 @@
         <h4 class="section-title">价格(¥{{ priceMin }} - ¥{{ priceMax }}{{ priceMax >= 750 ? '+' : '' }})</h4>
         <div class="range-slider" ref="sliderRef" @mousedown="handleSliderClick">
           <div class="slider-track" :style="{ left: leftPercent + '%', right: (100 - rightPercent) + '%' }"></div>
-          <div class="slider-handle left" :style="{ left: `calc(${leftPercent}% - 8px)` }" @mousedown.stop="startDrag('left')"></div>
-          <div class="slider-handle right" :style="{ left: `calc(${rightPercent}% - 8px)` }" @mousedown.stop="startDrag('right')"></div>
+          <div class="slider-handle left" :style="{ left: `calc(${leftPercent}% - 8px)` }"
+            @mousedown.stop="startDrag('left')"></div>
+          <div class="slider-handle right" :style="{ left: `calc(${rightPercent}% - 8px)` }"
+            @mousedown.stop="startDrag('right')"></div>
         </div>
       </section>
 
@@ -19,10 +21,9 @@
         <h4 class="section-title">{{ group.title }}</h4>
         <div class="check-list">
           <label v-for="item in group.options" :key="item" class="check-item"
-                 :class="{ active: selectedIds.includes(`${group.title}-${item}`) }">
-            <input type="radio" :name="group.title" 
-                   :checked="selectedIds.includes(`${group.title}-${item}`)"
-                   @click="toggleFilter(group.title, item)" /> 
+            :class="{ active: selectedIds.includes(`${group.title}-${item}`) }">
+            <input type="radio" :name="group.title" :checked="selectedIds.includes(`${group.title}-${item}`)"
+              @click="toggleFilter(group.title, item)" />
             <span>{{ item }}</span>
           </label>
         </div>
@@ -41,8 +42,8 @@
         <div class="bar-left">
           <span class="tip">已选：</span>
           <div class="tag-list">
-            <div v-for="opt in selectedFilters" :key="opt.id" class="filter-tag" 
-                 :class="{ 'is-unchecked': !selectedIds.includes(opt.id) }">
+            <div v-for="opt in selectedFilters" :key="opt.id" class="filter-tag"
+              :class="{ 'is-unchecked': !selectedIds.includes(opt.id) }">
               <label class="tag-label">
                 <input type="checkbox" :value="opt.id" v-model="selectedIds" />
                 <span>{{ opt.label }}</span>
@@ -60,7 +61,7 @@
         <div v-if="loading" class="loading-placeholder">
           <div v-for="i in 3" :key="i" class="skeleton-card"></div>
         </div>
-        
+
         <template v-else>
           <div v-for="hotel in hotelList" :key="hotel._id || hotel.id" class="hotel-card">
             <div class="hotel-img">
@@ -78,7 +79,16 @@
                   <span class="comment-count">{{ hotel.commentCount || 0 }}条点评 · "{{ hotel.recommendText }}"</span>
                 </div>
                 <div class="location-row">
-                  <i class="icon-loc"></i> {{ hotel.address }} · <a class="map-link">查看地图</a>
+                  <i class="icon-loc"></i> {{ hotel.address }} ·
+
+                  <a href="javascript:;" class="map-link" @click="openMapDialog">
+                    查看地图
+                  </a>
+                  <el-dialog v-model="mapVisible" width="80%" top="5vh" destroy-on-close>
+                    <MapDetail v-if="mapVisible" :hotel-name="hotel.name" :address="hotel.address"
+                      :score="hotel.score" :comment-count="hotel.reviews" :lng="hotel.longitude"
+                      :lat="hotel.latitude" />
+                  </el-dialog>
                 </div>
                 <!-- <div class="room-type-bar">
                   <span class="room-name">{{ hotel.featuredRoom }}</span>
@@ -101,7 +111,7 @@
               </div>
             </div>
           </div>
-          
+
           <div v-if="hotelList.length === 0" class="empty-state">
             <img src="https://img.icons8.com/ios/100/000000/nothing-found.png" alt="No data">
             <p>没有找到符合条件的酒店，请尝试更改筛选条件</p>
@@ -116,9 +126,16 @@
 import { ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { searchHotels } from '@/api/hotel';
+import MapDetail from '../../components/MapDetail.vue';
 
 const router = useRouter();
 const route = useRoute();
+
+// 查看地图
+const mapVisible = ref(false);
+const openMapDialog = () => {
+  mapVisible.value = true;
+};
 
 // 价格筛选
 const priceMin = ref(Number(route.query.priceMin) || 0);
@@ -152,7 +169,7 @@ const handleSliderClick = (e) => {
   if (!sliderRef.value) return;
   const rect = sliderRef.value.getBoundingClientRect();
   const percent = ((e.clientX - rect.left) / rect.width) * 100;
-  
+
   // Find nearest handle
   const type = Math.abs(percent - leftPercent.value) < Math.abs(percent - rightPercent.value) ? 'left' : 'right';
   updatePrice(percent, type);
@@ -185,7 +202,7 @@ const filterGroups = [
   // { title: '星级', options: ['1星','2星', '3星', '4星', '5星'] },
   { title: '点评数', options: ['500条以上', '200条以上', '100条以上'] },
   { title: '分数', options: ['4.5分及以上', '4.0分及以上', '3.5分及以上'] },
-  { title: '设施服务', options: ['公共停车场', '大堂吧', '健身房', '餐厅','叫车服务','行李寄存','儿童餐','储物柜'] },
+  { title: '设施服务', options: ['公共停车场', '大堂吧', '健身房', '餐厅', '叫车服务', '行李寄存', '儿童餐', '储物柜'] },
 ]
 
 // 根据 selectedIds 初始化 selectedFilters
@@ -222,9 +239,9 @@ onMounted(() => {
 
 const toggleFilter = (group, item) => {
   const existingIndex = selectedFilters.value.findIndex(f => f.group === group);
-  
+
   const newValue = { id: `${group}-${item}`, label: item, group };
-  
+
   if (existingIndex > -1) {
     if (selectedFilters.value[existingIndex].label === item) {
       // 取消选中的
@@ -287,13 +304,13 @@ const pushParamsToUrl = () => {
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
     const query = { ...route.query };
-    
+
     if (priceMin.value > 0) query.priceMin = priceMin.value;
     else delete query.priceMin;
-    
+
     if (priceMax.value < 750) query.priceMax = priceMax.value;
     else delete query.priceMax;
-    
+
     // 将 selectedIds 数组转成字符串
     if (selectedIds.value.length > 0) query.filters = selectedIds.value.join(',');
     else delete query.filters;
@@ -301,7 +318,7 @@ const pushParamsToUrl = () => {
     // 只有当查询参数确实发生变化时才 push，避免冗余
     const currentQueryStr = JSON.stringify(route.query);
     const nextQueryStr = JSON.stringify(query);
-    
+
     if (currentQueryStr !== nextQueryStr) {
       router.push({ query });
     }
@@ -524,7 +541,7 @@ watch(() => route.query, () => {
               background: #f5f5f5;
               border-color: #ddd;
               color: #999;
-              
+
               .tag-label span {
                 text-decoration: line-through;
               }
@@ -644,8 +661,13 @@ watch(() => route.query, () => {
       }
 
       @keyframes skeleton-loading {
-        0% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        0% {
+          background-position: 100% 50%;
+        }
+
+        100% {
+          background-position: 0% 50%;
+        }
       }
 
       .empty-state {

@@ -67,6 +67,7 @@ const showAllImages = () => {
 import MapDetail from "../../../components/MapDetail.vue"; // 引入新组件
 import { getHotelDetail } from "../../../api/hotel.js";
 
+// 显示地图
 const mapVisible = ref(false);
 const openMapDialog = () => {
   mapVisible.value = true;
@@ -76,6 +77,7 @@ const hotelData = ref(null);
 onMounted(() => {
   const route = useRoute();
   getHotelDetail(route.query.hotelId).then((response) => {
+    console.log('hotelData111', response.data);
     hotelData.value = response.data;
   });
 });
@@ -96,7 +98,6 @@ onMounted(() => {
               hotelData.address
             }}</span>
           </el-tooltip>
-          <a>显示地图</a>
         </p>
       </div>
       <button class="select-room-btn" @click="emit('scrollToRoomEvent')">
@@ -204,10 +205,10 @@ onMounted(() => {
               v-if="mapVisible"
               :hotel-name="hotelData.name"
               :address="hotelData.address"
-              score="4.8"
-              comment-count="1016"
-              :lng="106.611"
-              :lat="29.537"
+              :score="hotelData.score"
+              :comment-count="hotelData.reviewCount"
+              :lng="hotelData.longitude"
+              :lat="hotelData.latitude"
             />
           </el-dialog>
         </div>

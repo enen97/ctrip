@@ -60,6 +60,9 @@ const getHotelDetail = async (hotelId) => {
     scoreText: getScoreText(hotel.score),
     description: hotel.description,
     reviewCount: hotel.reviews,
+    latitude: hotel.latitude,
+    longitude: hotel.longitude,
+
 
     images: images.map((i) => i.url),
 
