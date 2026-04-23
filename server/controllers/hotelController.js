@@ -69,7 +69,8 @@ const getHotelByName = async (req, res) => {
 
     const data = await hotelService.searchHotelsByName(name);
     res.json(success(data));
-  } catch (error) {
+  } catch (err) {
+    console.error(err);
     res.json(error("服务器错误"));
   }
 };
