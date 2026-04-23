@@ -42,7 +42,16 @@ const getRecommendCitys = async (req, res) => {
 const test = async (req, res) => {
   console.log("========= 我被执行了！=========");
   console.log("环境变量：", process.env.DB_HOST);
-  res.send("我运行成功啦！");
+  res.json({
+    message: "后端运行成功！",
+    config: {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD, // 密码安全脱敏显示
+      database: process.env.DB_NAME
+    }
+  });
 };
 
 module.exports = {
