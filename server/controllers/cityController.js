@@ -39,6 +39,16 @@ const getRecommendCitys = async (req, res) => {
   }
 };
 
+const test = async () => {
+  try {
+    const [rows] = await db.query("select 1+1 as res");
+    console.log("✅ 数据库连接成功：", rows[0].res);
+  } catch (e) {
+    console.log("❌ 连接失败：", e);
+  }
+};
+
 module.exports = {
   getRecommendCitys,
+  test,
 };
