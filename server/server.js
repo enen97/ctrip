@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors"); // ⭐ 引入 
+const cors = require("cors"); // ⭐ 引入
 const allRoutes = require("./routes/index");
 
 const app = express();
@@ -12,8 +12,8 @@ app.use(express.urlencoded({ extended: true }));
 // 路由前缀
 app.use("/api", allRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`server running at http://localhost:${PORT}`);
+  console.log(`server running at http://线上ip:${PORT}`);
 });

@@ -63,7 +63,6 @@ const getHotelDetail = async (hotelId) => {
     latitude: hotel.latitude,
     longitude: hotel.longitude,
 
-
     images: images.map((i) => i.url),
 
     // JSON字段直接解析
@@ -197,10 +196,23 @@ const searchHotels = async (filterData) => {
   };
 };
 
+const searchHotelsByName = async (name) => {
+  const hotels = await hotelModel.findByName(name);
+
+  // 可以在这里对数据进行格式化，例如处理评分显示、价格符号等
+  return hotels.map((hotel) => ({
+    ...hotel,
+    // 模拟图片中“XX起”的逻辑
+    displayPrice: `¥${hotel.price}`,
+    locationInfo: `${hotel.city} · ${hotel.district}`,
+  }));
+};
+
 module.exports = {
   getHotelList,
   searchHotels,
   getHotelDetail,
   getHotelRooms,
   getRoomAvailability,
+  searchHotelsByName,
 };

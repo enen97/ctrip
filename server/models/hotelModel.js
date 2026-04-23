@@ -37,8 +37,19 @@ const getTopHotels = async (address) => {
 // 搜索酒店（多条件筛选）
 const searchHotels = async (filters) => {
   const {
-    city, checkIn, checkOut, rooms, adults, children,
-    priceMin, priceMax, levels, keyword, scoreMin, reviewsMin, facilities
+    city,
+    checkIn,
+    checkOut,
+    rooms,
+    adults,
+    children,
+    priceMin,
+    priceMax,
+    levels,
+    keyword,
+    scoreMin,
+    reviewsMin,
+    facilities,
   } = filters;
 
   // 计算入住天数 (离店日期 - 入住日期)
@@ -93,7 +104,7 @@ const searchHotels = async (filters) => {
 
   // 星级过滤 (levels 是数组 [1, 2, 3])
   if (levels && levels.length > 0) {
-    sql += ` AND h.star_level IN (${levels.map(() => '?').join(',')})`;
+    sql += ` AND h.star_level IN (${levels.map(() => "?").join(",")})`;
     params.push(...levels);
   }
 
@@ -137,24 +148,28 @@ const searchHotels = async (filters) => {
 
 // 查询酒店基本信息
 const getHotelById = async (hotelId) => {
-  const [rows] = await db.query(
-    'SELECT * FROM hotel WHERE id = ?',
-    [hotelId]
-  );
+  const [rows] = await db.query("SELECT * FROM hotel WHERE id = ?", [hotelId]);
   return rows[0];
-}
+};
 
 // 查询酒店图片
 const getHotelImages = async (hotelId) => {
   const [rows] = await db.query(
-    'SELECT url FROM hotel_image WHERE hotel_id = ? ORDER BY sort ASC',
-    [hotelId]
+    "SELECT url FROM hotel_image WHERE hotel_id = ? ORDER BY sort ASC",
+    [hotelId],
   );
   return rows;
-}
+};
 
 // 查询酒店房间
-const getHotelRooms = async (hotelId, checkIn, checkOut, rooms, adults, children) => {
+const getHotelRooms = async (
+  hotelId,
+  checkIn,
+  checkOut,
+  rooms,
+  adults,
+  children,
+) => {
   const sql = `
     SELECT
       rt.id,
@@ -188,11 +203,24 @@ const getHotelRooms = async (hotelId, checkIn, checkOut, rooms, adults, children
 
     HAVING MIN(ri.stock - ri.locked_stock) >= ?
   `;
-  console.log("执行sql语句：", sql, [checkIn, checkOut, hotelId, rooms, adults + children, rooms]);
-  const [rows] = await db.query(sql, [checkIn, checkOut, hotelId, rooms, adults + children, rooms]);
+  console.log("执行sql语句：", sql, [
+    checkIn,
+    checkOut,
+    hotelId,
+    rooms,
+    adults + children,
+    rooms,
+  ]);
+  const [rows] = await db.query(sql, [
+    checkIn,
+    checkOut,
+    hotelId,
+    rooms,
+    adults + children,
+    rooms,
+  ]);
   return rows;
-}
-
+};
 
 // 查询特定房型的每日价格和库存
 const getRoomAvailability = async (roomTypeId, checkIn, checkOut) => {
@@ -210,8 +238,26 @@ const getRoomAvailability = async (roomTypeId, checkIn, checkOut) => {
   `;
   const [rows] = await db.query(sql, [roomTypeId, checkIn, checkOut]);
   return rows;
-}
+};
 
+// 根据名称搜索酒店
+const findByName = async (keyword) => {
+  const sql = `
+      SELECT 
+        h.id, 
+        h.name, 
+        h.score, 
+        h.city, 
+        h.district, 
+        h.price, 
+        h.description,
+        (SELECT url FROM hotel_image WHERE hotel_id = h.id ORDER BY sort ASC LIMIT 1) as main_image
+      FROM hotel h
+      WHERE h.name LIKE ?
+    `;
+  const [rows] = await db.execute(sql, [`%${keyword}%`]);
+  return rows;
+};
 
 module.exports = {
   getTopHotels,
@@ -219,5 +265,6 @@ module.exports = {
   getHotelById,
   getHotelImages,
   getHotelRooms,
-  getRoomAvailability
+  getRoomAvailability,
+  findByName,
 };

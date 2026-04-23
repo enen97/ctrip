@@ -38,7 +38,6 @@ const getHotelRooms = async (req, res) => {
   }
 };
 
-
 const getRoomAvailability = async (req, res) => {
   try {
     const data = await hotelService.getRoomAvailability(req.body);
@@ -61,11 +60,25 @@ const searchHotels = async (req, res) => {
   }
 };
 
+const getHotelByName = async (req, res) => {
+  try {
+    const { name } = req.query; // 从查询参数获取名称，例如 /api/hotel?name=栖欢
+    if (!name) {
+      return res.status(400).json({ code: 400, message: "请输入酒店名称" });
+    }
+
+    const data = await hotelService.searchHotelsByName(name);
+    res.json(success(data));
+  } catch (error) {
+    res.json(error("服务器错误"));
+  }
+};
 
 module.exports = {
   getHotels,
   getHotelDetail,
   getHotelRooms,
   getRoomAvailability,
-  searchHotels
+  searchHotels,
+  getHotelByName,
 };
