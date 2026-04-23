@@ -14,6 +14,11 @@ app.use("/api", allRoutes);
 
 const PORT = process.env.PORT || 3000;
 
+// 健康检查接口
+app.get("/health", (req, res) => {
+  res.send("Server is alive!");
+});
+
 app.listen(PORT, () => {
   console.log(`server running at http://线上ip:${PORT}`);
 });
