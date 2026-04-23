@@ -14,9 +14,31 @@ app.use("/api", allRoutes);
 
 const PORT = process.env.PORT || 3000;
 
+// 引入你的 db 连接池
+const db = require("./config/db");
+
+
 // 健康检查接口
-app.get("/health", (req, res) => {
-  res.send("Server is alive!");
+app.get("/health", async (req, res) => {
+  try {
+    // 执行一个简单的 SQL
+    const [rows] = await db.query("SELECT '连接成功' as status, NOW() as time");
+    res.json({
+      success: true,
+      db_status: rows[0].status,
+      db_time: rows[0].time,
+      current_config: {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT
+      }
+    });
+  } catch (error) {
+    console.error("健康检查失败:", error);
+    res.status(500).json({
+      success: false,
+      message: "服务器内部错误"
+    });
+  }
 });
 
 app.listen(PORT, () => {
