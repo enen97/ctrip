@@ -40,13 +40,7 @@ const getRecommendCitys = async (req, res) => {
 };
 
 const test = async () => {
-  console.log("测试数据库连接...",process.env);
-  try {
-    const [rows] = await db.query("select 1+1 as res");
-    console.log("✅ 数据库连接成功：", rows[0].res);
-  } catch (e) {
-    console.log("❌ 连接失败：", e);
-  }
+  console.log("测试数据库连接...", process.env);
 };
 
 module.exports = {
