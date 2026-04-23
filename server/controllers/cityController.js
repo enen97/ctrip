@@ -39,8 +39,10 @@ const getRecommendCitys = async (req, res) => {
   }
 };
 
-const test = async () => {
-  console.log("测试数据库连接...", process.env);
+const test = async (req, res) => {
+  console.log("========= 我被执行了！=========");
+  console.log("环境变量：", process.env.DB_HOST);
+  res.send("我运行成功啦！");
 };
 
 module.exports = {
