@@ -23,7 +23,7 @@ const createOrder = async (req, res) => {
         productCode: "FAST_INSTANT_TRADE_PAY",
       },
       returnUrl: `http://wsh-dl-d6gmbkp7237716ff1-1365164672.tcloudbaseapp.com/#/order/pay-success`,
-      notifyUrl: "https://22d42def.r36.cpolar.top/api/order/notify",
+      notifyUrl: "https://qwerrtsidaojs121221211-250052-6-1365164672.sh.run.tcloudbase.com/api/order/notify",
     });
 
     // 3️⃣ 返回 HTML（自动跳转支付宝）
