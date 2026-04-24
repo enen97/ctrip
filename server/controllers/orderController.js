@@ -22,7 +22,7 @@ const createOrder = async (req, res) => {
         subject: "酒店订单",
         productCode: "FAST_INSTANT_TRADE_PAY",
       },
-      returnUrl: `http://wsh-dl-d6gmbkp7237716ff1-1365164672.tcloudbaseapp.com/order/pay-success`,
+      returnUrl: `http://wsh-dl-d6gmbkp7237716ff1-1365164672.tcloudbaseapp.com/#/order/pay-success`,
       notifyUrl: "https://22d42def.r36.cpolar.top/api/order/notify",
     });
 
@@ -138,7 +138,14 @@ const getUserOrders = async (req, res) => {
 const searchUserOrders = async (req, res) => {
   try {
     const { userId, checkIn, checkOut, guest, orderNo, status } = req.query;
-    const orders = await orderModel.searchUserOrders(userId, checkIn, checkOut, guest, orderNo, status);
+    const orders = await orderModel.searchUserOrders(
+      userId,
+      checkIn,
+      checkOut,
+      guest,
+      orderNo,
+      status,
+    );
     // 映射状态码到前端需要的文字和类型
     const mappedOrders = orders.map((order) => {
       let statusText = "未知";
