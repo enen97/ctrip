@@ -22,7 +22,7 @@ const createOrder = async (req, res) => {
         subject: "酒店订单",
         productCode: "FAST_INSTANT_TRADE_PAY",
       },
-      returnUrl: `http://localhost:5173/order/pay-success`,
+      returnUrl: `http://wsh-dl-d6gmbkp7237716ff1-1365164672.tcloudbaseapp.com/order/pay-success`,
       notifyUrl: "https://22d42def.r36.cpolar.top/api/order/notify",
     });
 
